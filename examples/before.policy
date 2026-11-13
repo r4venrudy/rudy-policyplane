@@ -1,0 +1,6 @@
+# Before
+default deny
+drop-admin deny tcp * 192.0.2.0/24 22
+allow-app allow tcp 198.51.100.0/24 192.0.2.0/24 443
+old-health allow udp 198.51.100.0/24 192.0.2.0/24 9000
+shadowed allow tcp 198.51.100.0/24 192.0.2.0/24 22
