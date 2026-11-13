@@ -113,6 +113,14 @@ with TemporaryDirectory() as folder:
     ):
         left.write_text(source, encoding="ascii")
         invoke("audit", left, status=2)
+    # A single-flow query has linear cost even when compilation exceeds its budget.
+    sources = [f"src-{i} deny tcp {IPv4Address(i * 2)} * *" for i in range(500)]
+    destinations = [f"dst-{i} allow tcp * {IPv4Address(i * 2)} *" for i in range(500)]
+    left.write_text("\n".join(["default deny", *sources, *destinations]) + "\n", encoding="ascii")
+    invoke("audit", left, status=2)
+    check(invoke("match", left, "tcp", "0.0.0.1", "0.0.0.2", 443) ==
+          {"action": "allow", "rule": "dst-1"}, "direct match works on a highly fragmented policy")
+
     left.write_text("default deny\nlast allow udp 255.255.255.255 * 65535\n", encoding="ascii")
     check(invoke("match", left, "udp", "255.255.255.255", "0.0.0.0", 65535)["rule"] == "last",
           "maximum address and port")

@@ -61,8 +61,7 @@ int run(std::span<char*> args) {
         const std::array point{pp::ipv4(args[3]), pp::ipv4(args[4]),
                                args.size() == 6 ? parse_port(args[5]) : std::uint64_t{0}};
         const auto policy = pp::load_policy(args[1]);
-        const auto partition = pp::compile(policy, budget);
-        pp::show_match(std::cout, policy, pp::lookup(partition, *protocol, point));
+        pp::show_match(std::cout, policy, pp::match(policy, *protocol, point));
         return 0;
     }
     throw std::runtime_error("invalid command or arguments; see --help");

@@ -29,7 +29,7 @@ private:
 };
 
 Partition compile(const Policy& policy, Budget& budget);
-const Cell& lookup(const Partition& partition, Protocol protocol,
-                   const std::array<std::uint64_t, 3>& point);
+Cell match(const Policy& policy, Protocol protocol,
+           const std::array<std::uint64_t, 3>& point);
 
 }  // namespace policyplane

@@ -46,18 +46,19 @@ Partition compile(const Policy& policy, Budget& budget) {
     return partition;
 }
 
-const Cell& lookup(const Partition& partition, Protocol protocol,
-                   const std::array<std::uint64_t, 3>& point) {
-    const auto& cells = partition.cells[static_cast<std::size_t>(protocol)];
-    for (const auto& cell : cells) {
+Cell match(const Policy& policy, Protocol protocol,
+           const std::array<std::uint64_t, 3>& point) {
+    for (std::size_t index = 0; index < policy.rules.size(); ++index) {
+        const auto& rule = policy.rules[index];
+        if (rule.protocol && *rule.protocol != protocol) continue;
         bool matches = true;
         for (std::size_t axis = 0; axis < point.size(); ++axis) {
-            const auto range = cell.region.axes[axis];
+            const auto range = rule.region.axes[axis];
             matches = matches && range.start <= point[axis] && point[axis] < range.end;
         }
-        if (matches) return cell;
+        if (matches) return {rule.region, rule.action, index};
     }
-    throw std::logic_error("point outside compiled packet space");
+    return {universe(protocol), policy.fallback, default_rule};
 }
 
 }  // namespace policyplane
